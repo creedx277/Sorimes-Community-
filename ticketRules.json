@@ -1,0 +1,14 @@
+
+{
+  "panelRules": [
+    "1 - **Quando abrir o ticket, deixe claro o suporte que precisa.**",
+    "2 - **É proibido abrir o ticket por nenhuma razão ou fora do tópico de atendimento.**",
+    "3 - **Inatividade no ticket resultará no fechamento do mesmo.**",
+    "4 - **Escolha o tópico do seu atendimento na categoria abaixo.**"
+  ],
+  "ticketRules": [
+    "I - **Deixe claro o suporte que precisa.**",
+    "II - **É proibido abrir o ticket por nenhuma razão ou fora do tópico de atendimento.**",
+    "III - **Inatividade no ticket resultará no fechamento do mesmo.**"
+  ]
+}

@@ -1,0 +1,901 @@
+
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sorimes Community - Sistema de Tickets</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        body {
+            background: linear-gradient(135deg, #1a1a2e, #16213e, #0f0f23);
+            color: #ffffff;
+            min-height: 100vh;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        /* Header */
+        .header {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            background: rgba(20, 20, 40, 0.95);
+            backdrop-filter: blur(10px);
+            border-bottom: 1px solid rgba(138, 43, 226, 0.3);
+            z-index: 1000;
+            padding: 15px 20px;
+        }
+        
+        .header-content {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        
+        .logo {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: #8a2be2;
+            text-decoration: none;
+            cursor: pointer;
+        }
+        
+        /* Hamburger Menu */
+        .hamburger {
+            display: flex;
+            flex-direction: column;
+            cursor: pointer;
+            padding: 5px;
+        }
+        
+        .hamburger span {
+            width: 25px;
+            height: 3px;
+            background: #8a2be2;
+            margin: 3px 0;
+            transition: 0.3s;
+            border-radius: 2px;
+        }
+        
+        .hamburger.active span:nth-child(1) {
+            transform: rotate(-45deg) translate(-5px, 6px);
+        }
+        
+        .hamburger.active span:nth-child(2) {
+            opacity: 0;
+        }
+        
+        .hamburger.active span:nth-child(3) {
+            transform: rotate(45deg) translate(-5px, -6px);
+        }
+        
+        /* Status do Bot */
+        .bot-status {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 0.9rem;
+        }
+        
+        .status-indicator {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            animation: pulse 2s infinite;
+        }
+        
+        .status-online {
+            background: #00ff00;
+            box-shadow: 0 0 10px #00ff00;
+        }
+        
+        .status-offline {
+            background: #ff0000;
+            box-shadow: 0 0 10px #ff0000;
+        }
+        
+        @keyframes pulse {
+            0% { opacity: 1; }
+            50% { opacity: 0.5; }
+            100% { opacity: 1; }
+        }
+        
+        /* Navigation Menu */
+        .nav-menu {
+            position: fixed;
+            top: 70px;
+            right: -300px;
+            width: 280px;
+            height: calc(100vh - 70px);
+            background: rgba(30, 30, 60, 0.95);
+            backdrop-filter: blur(15px);
+            border-left: 1px solid rgba(138, 43, 226, 0.3);
+            transition: right 0.3s ease;
+            z-index: 999;
+            padding: 20px;
+            overflow-y: auto;
+        }
+        
+        .nav-menu.active {
+            right: 0;
+        }
+        
+        .nav-menu h3 {
+            color: #8a2be2;
+            margin-bottom: 20px;
+            font-size: 1.2rem;
+        }
+        
+        .nav-item {
+            padding: 15px 0;
+            border-bottom: 1px solid rgba(138, 43, 226, 0.2);
+            cursor: pointer;
+            transition: color 0.3s;
+        }
+        
+        .nav-item:hover {
+            color: #8a2be2;
+        }
+        
+        .nav-item i {
+            margin-right: 10px;
+            width: 20px;
+        }
+        
+        /* Main Content */
+        .main-content {
+            margin-top: 90px;
+            padding: 20px;
+        }
+        
+        .container {
+            background: rgba(30, 30, 60, 0.9);
+            border-radius: 15px;
+            padding: 30px;
+            box-shadow: 0 15px 35px rgba(138, 43, 226, 0.3);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(138, 43, 226, 0.2);
+            max-width: 800px;
+            margin: 0 auto;
+        }
+        
+        /* Página Inicial */
+        .welcome-section {
+            text-align: center;
+            padding: 40px 20px;
+        }
+        
+        .welcome-title {
+            font-size: 2.5rem;
+            font-weight: 700;
+            color: #ffffff;
+            text-shadow: 0 0 20px rgba(138, 43, 226, 0.5);
+            margin-bottom: 30px;
+        }
+        
+        .welcome-subtitle {
+            font-size: 1.2rem;
+            color: #8a2be2;
+            font-weight: 600;
+            margin-bottom: 40px;
+        }
+        
+        .welcome-instructions {
+            background: rgba(60, 60, 100, 0.7);
+            border: 1px solid rgba(138, 43, 226, 0.3);
+            border-radius: 12px;
+            padding: 30px;
+            margin: 30px 0;
+            font-size: 1.1rem;
+            line-height: 1.6;
+        }
+        
+        .welcome-icon {
+            font-size: 4rem;
+            color: #8a2be2;
+            margin-bottom: 30px;
+            animation: float 3s ease-in-out infinite;
+        }
+        
+        @keyframes float {
+            0%, 100% { transform: translateY(0px); }
+            50% { transform: translateY(-10px); }
+        }
+        
+        .hamburger-demo {
+            display: inline-flex;
+            flex-direction: column;
+            margin: 0 5px;
+            vertical-align: middle;
+        }
+        
+        .hamburger-demo span {
+            width: 20px;
+            height: 2px;
+            background: #8a2be2;
+            margin: 1px 0;
+            border-radius: 1px;
+        }
+        
+        /* Seção de Edição de Regras */
+        .rules-section {
+            display: none;
+        }
+        
+        .card {
+            background: rgba(45, 45, 80, 0.8);
+            border: 1px solid rgba(138, 43, 226, 0.3);
+            color: #ffffff;
+        }
+        
+        .form-control {
+            background: rgba(60, 60, 100, 0.7);
+            border: 1px solid rgba(138, 43, 226, 0.4);
+            color: #ffffff;
+        }
+        
+        .form-control:focus {
+            background: rgba(60, 60, 100, 0.9);
+            border-color: #8a2be2;
+            box-shadow: 0 0 0 0.2rem rgba(138, 43, 226, 0.25);
+            color: #ffffff;
+        }
+        
+        .form-control::placeholder {
+            color: rgba(255, 255, 255, 0.6);
+        }
+        
+        .btn-primary {
+            background: linear-gradient(45deg, #8a2be2, #9932cc);
+            border-color: #8a2be2;
+            color: #ffffff;
+            font-weight: 600;
+        }
+        
+        .btn-primary:hover {
+            background: linear-gradient(45deg, #9932cc, #8a2be2);
+            border-color: #9932cc;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(138, 43, 226, 0.4);
+        }
+        
+        .btn-outline-primary {
+            border-color: #8a2be2;
+            color: #8a2be2;
+        }
+        
+        .btn-outline-primary:hover {
+            background-color: #8a2be2;
+            border-color: #8a2be2;
+            color: #ffffff;
+        }
+        
+        .btn-outline-danger {
+            border-color: #dc3545;
+            color: #dc3545;
+        }
+        
+        .btn-outline-danger:hover {
+            background-color: #dc3545;
+            border-color: #dc3545;
+            color: #ffffff;
+        }
+        
+        .form-label {
+            color: #e0e0ff;
+            font-weight: 500;
+        }
+        
+        h1 {
+            color: #ffffff;
+            text-shadow: 0 0 20px rgba(138, 43, 226, 0.5);
+        }
+        
+        .input-group {
+            margin-bottom: 10px;
+        }
+        
+        .alert {
+            background: rgba(138, 43, 226, 0.2);
+            border: 1px solid rgba(138, 43, 226, 0.5);
+            color: #ffffff;
+        }
+        
+        /* Overlay para fechar menu */
+        .overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 998;
+            opacity: 0;
+            visibility: hidden;
+            transition: opacity 0.3s, visibility 0.3s;
+        }
+        
+        .overlay.active {
+            opacity: 1;
+            visibility: visible;
+        }
+        
+        /* Responsive */
+        @media (max-width: 768px) {
+            .bot-status {
+                font-size: 0.8rem;
+            }
+            
+            .header-content {
+                padding: 0 15px;
+            }
+            
+            .main-content {
+                padding: 15px;
+            }
+            
+            .container {
+                padding: 20px 15px;
+            }
+            
+            .logo {
+                font-size: 1.3rem;
+            }
+            
+            .welcome-title {
+                font-size: 2rem;
+            }
+            
+            .welcome-instructions {
+                padding: 20px;
+                font-size: 1rem;
+            }
+        }
+        
+        @media (max-width: 480px) {
+            .nav-menu {
+                width: 100%;
+                right: -100%;
+            }
+            
+            .bot-status span {
+                display: none;
+            }
+            
+            .welcome-title {
+                font-size: 1.8rem;
+            }
+            
+            .welcome-instructions {
+                padding: 15px;
+                font-size: 0.95rem;
+            }
+        }
+        
+        /* Página de Status */
+        .status-page {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 10000;
+        }
+        
+        .status-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.8);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            backdrop-filter: blur(10px);
+            padding: 20px;
+            overflow-y: auto;
+        }
+        
+        .status-container {
+            background: rgba(30, 30, 60, 0.95);
+            border-radius: 15px;
+            padding: 0;
+            max-width: 400px;
+            width: 100%;
+            max-height: 90vh;
+            border: 1px solid rgba(138, 43, 226, 0.3);
+            box-shadow: 0 20px 40px rgba(138, 43, 226, 0.3);
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .status-header {
+            background: rgba(138, 43, 226, 0.2);
+            padding: 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid rgba(138, 43, 226, 0.3);
+        }
+        
+        .status-header h2 {
+            margin: 0;
+            color: #ffffff;
+            font-size: 1.5rem;
+            font-weight: 600;
+        }
+        
+        .close-status {
+            background: none;
+            border: none;
+            color: #ffffff;
+            font-size: 2rem;
+            cursor: pointer;
+            padding: 0;
+            width: 30px;
+            height: 30px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
+            transition: background 0.3s;
+        }
+        
+        .close-status:hover {
+            background: rgba(255, 255, 255, 0.1);
+        }
+        
+        .status-content {
+            padding: 20px;
+            overflow-y: auto;
+            flex: 1;
+        }
+        
+        .status-circle {
+            display: flex;
+            justify-content: center;
+            margin-bottom: 30px;
+        }
+        
+        .status-icon {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            background: rgba(60, 60, 100, 0.5);
+            border: 3px solid rgba(138, 43, 226, 0.3);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+        }
+        
+        .status-icon.online::before {
+            content: '';
+            width: 20px;
+            height: 20px;
+            background: #00ff00;
+            border-radius: 50%;
+            box-shadow: 0 0 20px #00ff00;
+            animation: pulse 2s infinite;
+        }
+        
+        .status-icon.offline::before {
+            content: '';
+            width: 20px;
+            height: 20px;
+            background: #ff0000;
+            border-radius: 50%;
+            box-shadow: 0 0 20px #ff0000;
+        }
+        
+        .status-info {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+        
+        .status-item {
+            background: rgba(60, 60, 100, 0.3);
+            padding: 15px;
+            border-radius: 10px;
+            border: 1px solid rgba(138, 43, 226, 0.2);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .status-label {
+            color: rgba(255, 255, 255, 0.8);
+            font-weight: 500;
+        }
+        
+        .status-value {
+            color: #ffffff;
+            font-weight: 600;
+            font-size: 1.1rem;
+        }
+        
+        .status-value.uptime {
+            color: #8a2be2;
+            font-weight: 700;
+        }
+        
+        @media (max-width: 480px) {
+            .status-overlay {
+                padding: 10px;
+                align-items: flex-start;
+                padding-top: 20px;
+            }
+            
+            .status-container {
+                width: 100%;
+                max-height: 85vh;
+                margin: 0;
+            }
+            
+            .status-header {
+                padding: 15px;
+            }
+            
+            .status-header h2 {
+                font-size: 1.3rem;
+            }
+            
+            .status-content {
+                padding: 15px;
+            }
+            
+            .status-circle {
+                margin-bottom: 20px;
+            }
+            
+            .status-icon {
+                width: 60px;
+                height: 60px;
+            }
+            
+            .status-item {
+                padding: 10px;
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 5px;
+            }
+            
+            .status-label {
+                font-size: 0.9rem;
+            }
+            
+            .status-value {
+                font-size: 0.95rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Header -->
+    <header class="header">
+        <div class="header-content">
+            <a href="#" class="logo" onclick="showHome()">Sorimes Community</a>
+            
+            <div class="d-flex align-items-center gap-3">
+                <!-- Status do Bot -->
+                <div class="bot-status">
+                    <div class="status-indicator" id="statusIndicator"></div>
+                    <span id="statusText">Verificando...</span>
+                </div>
+                
+                <!-- Menu Hambúrguer -->
+                <div class="hamburger" id="hamburgerMenu">
+                    <span></span>
+                    <span></span>
+                    <span></span>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Overlay -->
+    <div class="overlay" id="overlay"></div>
+
+    <!-- Menu de Navegação -->
+    <nav class="nav-menu" id="navMenu">
+        <h3>Menu</h3>
+        <div class="nav-item" onclick="showHome()">
+            <i class="fas fa-home"></i>
+            Início
+        </div>
+        <div class="nav-item" onclick="showRulesEditor()">
+            <i class="fas fa-edit"></i>
+            Editar Regras
+        </div>
+        <div class="nav-item" onclick="showStatus()">
+            <i class="fas fa-robot"></i>
+            Status do Bot
+        </div>
+        <div class="nav-item" onclick="showInfo()">
+            <i class="fas fa-info-circle"></i>
+            Sobre
+        </div>
+        <div class="nav-item" onclick="showHelp()">
+            <i class="fas fa-question-circle"></i>
+            Ajuda
+        </div>
+    </nav>
+
+    <!-- Conteúdo Principal -->
+    <main class="main-content">
+        <!-- Página Inicial -->
+        <div class="container welcome-section" id="home-section">
+            <div class="welcome-icon">
+                <i class="fas fa-ticket-alt"></i>
+            </div>
+            <h1 class="welcome-title">Bem-vindo ao Dashboard da Sorimes Community</h1>
+            <p class="welcome-subtitle">Sistema de Gerenciamento de Tickets</p>
+            
+            <div class="welcome-instructions">
+                <p><strong>Para editar as regras clique nos</strong> 
+                    <span class="hamburger-demo">
+                        <span></span>
+                        <span></span>
+                        <span></span>
+                    </span> 
+                    <strong>3 traços no canto da tela e vá em "Editar Regras"!</strong>
+                </p>
+                <hr style="border-color: rgba(138, 43, 226, 0.3); margin: 20px 0;">
+                <p>Este dashboard permite que você gerencie todas as configurações do seu sistema de tickets do Discord de forma fácil e intuitiva.</p>
+            </div>
+        </div>
+
+        <!-- Seção de Edição de Regras -->
+        <div class="container rules-section" id="rules-section">
+            <h1 class="mb-4 text-center">Editar Regras do Bot de Ticket</h1>
+            
+            <form id="rulesForm">
+                <div class="mb-4">
+                    <label class="form-label h5">Regras do Painel</label>
+                    <div id="panelRules">
+                        <div class="input-group mb-2">
+                            <input type="text" class="form-control" name="panelRules[]" value="1 - **Quando abrir o ticket, deixe claro o suporte que precisa.**">
+                            <button type="button" class="btn btn-outline-danger" onclick="removeRule(this)">Remover</button>
+                        </div>
+                        <div class="input-group mb-2">
+                            <input type="text" class="form-control" name="panelRules[]" value="2 - **É proibido abrir o ticket por nenhuma razão ou fora do tópico de atendimento.**">
+                            <button type="button" class="btn btn-outline-danger" onclick="removeRule(this)">Remover</button>
+                        </div>
+                        <div class="input-group mb-2">
+                            <input type="text" class="form-control" name="panelRules[]" value="3 - **Inatividade no ticket resultará no fechamento do mesmo.**">
+                            <button type="button" class="btn btn-outline-danger" onclick="removeRule(this)">Remover</button>
+                        </div>
+                        <div class="input-group mb-2">
+                            <input type="text" class="form-control" name="panelRules[]" value="4 - **Escolha o tópico do seu atendimento na categoria abaixo.**">
+                            <button type="button" class="btn btn-outline-danger" onclick="removeRule(this)">Remover</button>
+                        </div>
+                    </div>
+                    <button type="button" class="btn btn-outline-primary mb-3" onclick="addRule('panelRules')">Adicionar Regra</button>
+                </div>
+                
+                <div class="mb-4">
+                    <label class="form-label h5">Regras do Ticket</label>
+                    <div id="ticketRules">
+                        <div class="input-group mb-2">
+                            <input type="text" class="form-control" name="ticketRules[]" value="I - **Deixe claro o suporte que precisa.**">
+                            <button type="button" class="btn btn-outline-danger" onclick="removeRule(this)">Remover</button>
+                        </div>
+                        <div class="input-group mb-2">
+                            <input type="text" class="form-control" name="ticketRules[]" value="II - **É proibido abrir o ticket por nenhuma razão ou fora do tópico de atendimento.**">
+                            <button type="button" class="btn btn-outline-danger" onclick="removeRule(this)">Remover</button>
+                        </div>
+                        <div class="input-group mb-2">
+                            <input type="text" class="form-control" name="ticketRules[]" value="III - **Inatividade no ticket resultará no fechamento do mesmo.**">
+                            <button type="button" class="btn btn-outline-danger" onclick="removeRule(this)">Remover</button>
+                        </div>
+                    </div>
+                    <button type="button" class="btn btn-outline-primary mb-3" onclick="addRule('ticketRules')">Adicionar Regra</button>
+                </div>
+                
+                <div class="text-center">
+                    <button type="submit" class="btn btn-primary btn-lg px-5">Salvar Regras</button>
+                </div>
+            </form>
+        </div>
+    </main>
+
+    <script>
+        // Controle de navegação entre seções
+        function showHome() {
+            document.getElementById('home-section').style.display = 'block';
+            document.getElementById('rules-section').style.display = 'none';
+            closeMenu();
+        }
+        
+        function showRulesEditor() {
+            document.getElementById('home-section').style.display = 'none';
+            document.getElementById('rules-section').style.display = 'block';
+            closeMenu();
+        }
+        
+        // Controle do menu hambúrguer
+        const hamburgerMenu = document.getElementById('hamburgerMenu');
+        const navMenu = document.getElementById('navMenu');
+        const overlay = document.getElementById('overlay');
+        
+        hamburgerMenu.addEventListener('click', toggleMenu);
+        overlay.addEventListener('click', closeMenu);
+        
+        function toggleMenu() {
+            hamburgerMenu.classList.toggle('active');
+            navMenu.classList.toggle('active');
+            overlay.classList.toggle('active');
+        }
+        
+        function closeMenu() {
+            hamburgerMenu.classList.remove('active');
+            navMenu.classList.remove('active');
+            overlay.classList.remove('active');
+        }
+        
+        function showStatus() {
+            showStatusPage();
+            closeMenu();
+        }
+        
+        function showStatusPage() {
+            const statusPage = document.createElement('div');
+            statusPage.className = 'status-page';
+            statusPage.innerHTML = `
+                <div class="status-overlay">
+                    <div class="status-container">
+                        <div class="status-header">
+                            <h2>Status do Bot</h2>
+                            <button class="close-status" onclick="closeStatusPage()">&times;</button>
+                        </div>
+                        <div class="status-content">
+                            <div class="status-circle">
+                                <div class="status-icon ${document.getElementById('statusIndicator').classList.contains('status-online') ? 'online' : 'offline'}"></div>
+                            </div>
+                            <div class="status-info">
+                                <div class="status-item">
+                                    <span class="status-label">Status:</span>
+                                    <span class="status-value">${document.getElementById('statusText').textContent}</span>
+                                </div>
+                                <div class="status-item">
+                                    <span class="status-label">Servidores:</span>
+                                    <span class="status-value">1</span>
+                                </div>
+                                <div class="status-item">
+                                    <span class="status-label">Usuários:</span>
+                                    <span class="status-value">15</span>
+                                </div>
+                                <div class="status-item">
+                                    <span class="status-label">Canais:</span>
+                                    <span class="status-value">35</span>
+                                </div>
+                                <div class="status-item">
+                                    <span class="status-label">Ping:</span>
+                                    <span class="status-value">45.2ms</span>
+                                </div>
+                                <div class="status-item">
+                                    <span class="status-label">Tempo de Atividade:</span>
+                                    <span class="status-value uptime">2d 5h 23m 15s</span>
+                                </div>
+                                <div class="status-item">
+                                    <span class="status-label">Uso de Memória:</span>
+                                    <span class="status-value">18.7 MB</span>
+                                </div>
+                                <div class="status-item">
+                                    <span class="status-label">Versão Node.js:</span>
+                                    <span class="status-value">v22.16.0</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `;
+            document.body.appendChild(statusPage);
+        }
+        
+        function closeStatusPage() {
+            const statusPage = document.querySelector('.status-page');
+            if (statusPage) {
+                statusPage.remove();
+            }
+        }
+        
+        function showInfo() {
+            alert('Sistema de Tickets da Sorimes Community\nVersão 1.0\nDesenvolvido para gerenciar tickets no Discord');
+            closeMenu();
+        }
+        
+        function showHelp() {
+            alert('Ajuda:\n- Use as regras do painel para configurar o que aparece no Discord\n- Use as regras do ticket para configurar o que aparece dentro dos tickets\n- Clique em "Salvar Regras" para aplicar as mudanças');
+            closeMenu();
+        }
+        
+        // Verificação do status do bot
+        async function checkBotStatus() {
+            try {
+                const response = await fetch('/api/bot-status');
+                const data = await response.json();
+                updateStatus(data.online);
+            } catch (error) {
+                updateStatus(false);
+            }
+        }
+        
+        function updateStatus(isOnline) {
+            const indicator = document.getElementById('statusIndicator');
+            const text = document.getElementById('statusText');
+            
+            if (isOnline) {
+                indicator.className = 'status-indicator status-online';
+                text.textContent = 'Bot Online';
+            } else {
+                indicator.className = 'status-indicator status-offline';
+                text.textContent = 'Bot Offline';
+            }
+        }
+        
+        // Verificar status a cada 30 segundos
+        setInterval(checkBotStatus, 30000);
+        
+        // Verificar status inicial
+        checkBotStatus();
+
+        // Funções para gerenciar regras
+        function addRule(section) {
+            const container = document.getElementById(section);
+            const div = document.createElement('div');
+            div.className = 'input-group mb-2';
+            div.innerHTML = `
+                <input type="text" class="form-control" name="${section}[]" placeholder="Digite a nova regra">
+                <button type="button" class="btn btn-outline-danger" onclick="removeRule(this)">Remover</button>
+            `;
+            container.appendChild(div);
+        }
+
+        function removeRule(button) {
+            button.parentElement.remove();
+        }
+
+        document.getElementById('rulesForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const panelRules = Array.from(document.querySelectorAll('input[name="panelRules[]"]')).map(input => input.value).filter(val => val.trim() !== '');
+            const ticketRules = Array.from(document.querySelectorAll('input[name="ticketRules[]"]')).map(input => input.value).filter(val => val.trim() !== '');
+
+            try {
+                const response = await fetch('/api/update-rules', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ panelRules, ticketRules })
+                });
+                const result = await response.json();
+                if (response.ok) {
+                    showAlert('Regras atualizadas com sucesso!', 'success');
+                } else {
+                    showAlert(result.error || 'Erro ao atualizar regras.', 'danger');
+                }
+            } catch (err) {
+                showAlert('Erro ao conectar com o servidor.', 'danger');
+            }
+        });
+        
+        function showAlert(message, type) {
+            const alertDiv = document.createElement('div');
+            alertDiv.className = `alert alert-${type} mt-3`;
+            alertDiv.textContent = message;
+            document.getElementById('rules-section').appendChild(alertDiv);
+            setTimeout(() => alertDiv.remove(), 3000);
+        }
+        
+        // Mostrar página inicial por padrão
+        showHome();
+    </script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>
